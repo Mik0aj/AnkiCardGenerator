@@ -1,10 +1,13 @@
-import genanki
+import csv
+import shutil
 
 from WordFetch import Word_Fetcher
-
+DECK_NAME='deck.csv'
 SAMPLE_TXT_NAME = 'sample.txt'
 RECORD_FOLDER = 'recording'
 IMAGE_FOLDER = 'images'
+RECORD_DESTINATION=''
+IMAGE_DESTINATION=''
 SRC = "cs"
 DEST = "en"
 USER_AGENT = {
@@ -15,33 +18,17 @@ USER_AGENT = {
     'Accept-Language': 'en-US,en;q=0.8',
     'Connection': 'keep-alive',
 }
-my_model = genanki.Model(
-    1380120064,
-    'Card generator model',
-    fields=[
-        {'name': 'Question'},
-        {'name': 'Answer'},
-
-    ],
-    templates=[
-        {
-            'name': 'Card 1',
-            'qfmt': '{{Question}}<br>',
-            'afmt': '{{FrontSide}}<hr id="answer">{{Answer}}',
-        },
-    ])
-my_deck = genanki.Deck(
-    2059400110,
-    'Czech lang')
 
 if __name__ == '__main__':
     wf = Word_Fetcher(record_folder=RECORD_FOLDER, image_folder=IMAGE_FOLDER, file_name=SAMPLE_TXT_NAME, src=SRC,
                       dest=DEST, usr_agent=USER_AGENT)
     anki_data = wf.get_data()
-    for i in range(len(anki_data[0])):
-        my_note = genanki.Note(
-            model=my_model,
-            fields=[anki_data[0][i], anki_data[1][i]])
-        my_deck.add_note(my_note)
-    my_package = genanki.Package(my_deck)
-    my_package.write_to_file('output.apkg')
+    with open(DECK_NAME, 'w', newline='') as file:
+        writer = csv.writer(file)
+        for i in range(len(anki_data[0])):
+            writer.writerow([anki_data[0][i],"[sound:{}.mp3]".format(anki_data[0][i]),anki_data[1][i],'<img src=\'{}.jpg\'>'.format(anki_data[0][i])])
+            print(anki_data[2][i])
+            shutil.copy2("./{}".format(anki_data[2][i]), '/home/mikoaj/.local/share/Anki2/User 1/collection.media/')
+            shutil.copy2("./{}".format(anki_data[3][i]), '/home/mikoaj/.local/share/Anki2/User 1/collection.media/')
+    shutil.copy2(DECK_NAME,'/home/mikoaj/Desktop')
+
