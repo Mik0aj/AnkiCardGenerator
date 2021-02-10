@@ -43,6 +43,9 @@ class Word_Fetcher():
         if not os.path.exists(record_folder):
             os.mkdir(record_folder)
         for word in self.wordsArray[0]:
+            if os.path.isfile("{}/{}.mp3".format(record_folder, word)):
+                print("file {}.mp3 already exists".format(word))
+                continue
             speach = Speech(word, self.src)
             print("Recoring for {start} : downloading mp3 and saving it in {folder}/{name}.jpg".format(
                 start=word,
@@ -50,8 +53,13 @@ class Word_Fetcher():
             speach.save("{}/{}.mp3".format(record_folder, word))
 
     def __download_images(self, links, image_folder, usr_agent):
+        if not os.path.exists(image_folder):
+            os.mkdir(image_folder)
         for i, link in enumerate(links):
             word = self.wordsArray[0][i]
+            if os.path.isfile("{}/{}.jpg".format(image_folder, word)):
+                print("file {}.jpg already exists".format(word))
+                continue
             response = requests.get(link, headers=usr_agent)
             html = response.text
             regex = r"https:\/\/images\.unsplash\.com\/photo-[^;]*"
